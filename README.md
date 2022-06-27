@@ -74,7 +74,8 @@ double-clicking on it.
 
 # Building and Installing
 ```bash
-qmake && make && make install
+qmake && make
+sudo make install
 ```
 
 # Note
