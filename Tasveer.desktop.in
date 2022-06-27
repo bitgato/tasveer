@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Tasveer
+Comment=A simple image browsing and viewing application
+Exec=$$target.path/Tasveer
+Icon=Tasveer
+Terminal=false
+Categories=Graphics;Qt
