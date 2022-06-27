@@ -64,7 +64,10 @@ button and then confirming. The tags will not get removed unless you press
 - An image can be opened in the default image viewing application by
 double-clicking on it.
 
-# Shortcuts
+- Images can be dragged and dropped to any location that supports dropping
+images (file managers, browsers, etc).
+
+## Shortcuts
 - `Ctrl+D`: Open `Add directory` menu.
 - `Ctrl+I`: Open `Add image` menu.
 - `Ctrl+T`: Open `Add tags` menu.
@@ -72,12 +75,12 @@ double-clicking on it.
 - `Ctrl+Z`: Set focus to image filter search box.
 - `Ctrl+Q`: Quit.
 
-# Building and Installing
+## Building and Installing
 ```bash
 qmake && make
 sudo make install
 ```
 
-# Note
+## Note
 To deselect an item (tag or image), press `Ctrl` and click the left mouse
 button.
