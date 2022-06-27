@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QPixmapCache>
 #include <QProgressDialog>
+#include <QShortcut>
 #include <QSize>
 #include <QSizePolicy>
 #include <QTableView>
@@ -43,14 +44,10 @@ MainWindow::MainWindow(QWidget* parent)
                      &QAction::triggered,
                      this,
                      &MainWindow::showAddTagsDialog);
-    QObject::connect(ui->actionQuit,
-                     &QAction::triggered,
-                     this,
-                     &QApplication::quit);
-    QObject::connect(ui->actionAbout,
-                     &QAction::triggered,
-                     this,
-                     &MainWindow::showAboutDialog);
+    QObject::connect(
+      ui->actionQuit, &QAction::triggered, this, &QApplication::quit);
+    QObject::connect(
+      ui->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
 
     QPixmapCache::setCacheLimit(102400);
 
@@ -116,6 +113,21 @@ MainWindow::MainWindow(QWidget* parent)
         ui->dirSelectBox->addItem(query.value(0).toString());
     }
     query.finish();
+
+    // Shortcuts
+    auto tagBoxFocusShortcut =
+      new QShortcut(QKeySequence(tr("Ctrl+S", "Focus|Tag box")), this);
+    QObject::connect(tagBoxFocusShortcut,
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::setTagBoxFocus);
+
+    auto imageBoxFocusShortcut =
+      new QShortcut(QKeySequence(tr("Ctrl+Z", "Focus|Image box")), this);
+    QObject::connect(imageBoxFocusShortcut,
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::setImageBoxFocus);
 }
 
 MainWindow::~MainWindow()
@@ -268,14 +280,36 @@ MainWindow::showAboutDialog()
     QMessageBox::about(this, "About Tasveer", ABOUT);
 }
 
+void
+MainWindow::setTagBoxFocus()
+{
+    ui->tagSearchBox->setFocus();
+}
+
+void
+MainWindow::setImageBoxFocus()
+{
+    ui->imageSearchBox->setFocus();
+}
+
 bool
 MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
     bool result = QObject::eventFilter(watched, event);
     if (watched == ui->tagSearchBox && event->type() == QEvent::KeyRelease) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            ui->tagSearchBox->clearFocus();
+            return result;
+        }
         filterTags(ui->methodBox->currentText());
     }
     if (watched == ui->imageSearchBox && event->type() == QEvent::KeyRelease) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            ui->imageSearchBox->clearFocus();
+            return result;
+        }
         filterImages();
     }
     if (enterTagsDialog && watched == enterTagsUi.enterTagsBox &&

@@ -65,5 +65,7 @@ class MainWindow : public QMainWindow
     void showAboutDialog();
     void showImageContextMenu(const QPoint& pos);
     void showShowTagsDialog();
+    void setTagBoxFocus();
+    void setImageBoxFocus();
 };
 #endif // MAINWINDOW_H

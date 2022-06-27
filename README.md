@@ -15,13 +15,11 @@ easily. It supports the most common file formats: `jpg`, `png`, `gif` and
 ![Main window](images/screenshots/main.png)
 
 ## Features
-- New directories can be added by the `File > Add Directories` menu. Shortcut
-is `Ctrl+D`.
+- New directories can be added by the `File > Add Directories` menu.
 
-- New single image can be added by the `File > Add Image` menu. Shortcut is
-`Ctrl+I`.
+- New single image can be added by the `File > Add Image` menu.
 
-- New tags can be added by the `File > Add Tags` menu. Shortcut is `Ctrl+T`.
+- New tags can be added by the `File > Add Tags` menu.
 All characters are allowed except semicolons, which are used to separate tags.
 In the dialog, enter the tags you want separated by semicolons. You'll see
 buttons get added to the dialog as you type a tag and then a semicolon.
@@ -65,6 +63,14 @@ button and then confirming. The tags will not get removed unless you press
 
 - An image can be opened in the default image viewing application by
 double-clicking on it.
+
+# Shortcuts
+- `Ctrl+D`: Open `Add directory` menu.
+- `Ctrl+I`: Open `Add image` menu.
+- `Ctrl+T`: Open `Add tags` menu.
+- `Ctrl+S`: Set focus to tag filter search box.
+- `Ctrl+Z`: Set focus to image filter search box.
+- `Ctrl+Q`: Quit.
 
 # Building and Installing
 ```bash
