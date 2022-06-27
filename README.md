@@ -66,6 +66,11 @@ button and then confirming. The tags will not get removed unless you press
 - An image can be opened in the default image viewing application by
 double-clicking on it.
 
+# Building and Installing
+```bash
+qmake && make && make install
+```
+
 # Note
 To deselect an item (tag or image), press `Ctrl` and click the left mouse
 button.
