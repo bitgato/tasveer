@@ -1,4 +1,5 @@
 #include "databasemanager.h"
+#include "filetypes.h"
 
 #include <QDebug>
 #include <QDir>
@@ -335,13 +336,7 @@ DatabaseManager::addDirectory(QProgressDialog& progress, const QString& dirPath)
     if (!dir.exists() || dir.isEmpty()) {
         return false;
     }
-    QStringList fileTypes;
-    fileTypes << "*.jpg"
-              << "*.jpeg"
-              << "*.png"
-              << "*.gif"
-              << "*.webp";
-    dir.setNameFilters(fileTypes);
+    dir.setNameFilters(FileTypes::fileTypes);
     QSqlDatabase db = QSqlDatabase::database(CONNECTION);
     if (!db.transaction()) {
         qDebug() << "dbDirTransactionError: " << db.lastError().text();
@@ -352,7 +347,7 @@ DatabaseManager::addDirectory(QProgressDialog& progress, const QString& dirPath)
                   "images "
                   "(dir, name) "
                   "VALUES (:dir, :name)");
-    QDirIterator it(dirPath, fileTypes, QDir::Files);
+    QDirIterator it(dirPath, FileTypes::fileTypes, QDir::Files);
     int done = 0, total = dir.count();
     while (it.hasNext()) {
         if (progress.wasCanceled()) {
@@ -421,7 +416,18 @@ DatabaseManager::addTags(const QStringList& tags)
     }
     if (!db.commit()) {
         qDebug() << "addTagsCommitError: " << query.lastError().text();
-        return;
+    }
+}
+
+void
+DatabaseManager::removeImage(const QString& imageId)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION);
+    QSqlQuery query(db);
+    query.prepare("DELETE FROM images WHERE image_id = (:imageId)");
+    query.bindValue(":imageId", imageId);
+    if (!query.exec()) {
+        qDebug() << "removeImageError: " << query.lastError().text();
     }
 }
 
@@ -452,19 +458,6 @@ DatabaseManager::removeTags(const QString& imageId, const QStringList& tags)
     }
     if (!db.commit()) {
         qDebug() << "removeTagsCommitError: " << db.lastError().text();
-        return;
-    }
-}
-
-void
-DatabaseManager::deleteImage(const QString& imageId)
-{
-    QSqlDatabase db = QSqlDatabase::database(CONNECTION);
-    QSqlQuery query(db);
-    query.prepare("DELETE FROM images WHERE image_id = (:imageId)");
-    query.bindValue(":imageId", imageId);
-    if (!query.exec()) {
-        qDebug() << "deleteImageError: " << query.lastError().text();
     }
 }
 
@@ -484,8 +477,7 @@ DatabaseManager::mapTagsToImage(const QStringList& tagIds,
         query.bindValue(":imageId", imageId);
         query.bindValue(":tagId", tagId);
         if (!query.exec()) {
-            qDebug() << "mapInsertBindError: " << db.lastError().text();
-            return;
+            qDebug() << "mapInsertBindError: " << query.lastError().text();
         }
     }
     if (!db.commit()) {

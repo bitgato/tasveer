@@ -1,3 +1,4 @@
+#include "imageloader.h"
 #include "sqlimagemodel.h"
 
 #include <QDesktopServices>
@@ -8,12 +9,14 @@
 #include <QUrl>
 
 SqlImageModel::SqlImageModel(DatabaseManager* dbMan,
-                             const QSize& size,
+                             QSize& size,
                              QObject* parent)
   : QSqlQueryModel(parent)
 {
     this->dbMan = dbMan;
     this->size = size;
+    this->loadingIcon.load(":/icons/images/loading.png");
+    this->deletedIcon.load(":/icons/images/deleted.png");
 }
 
 QString
@@ -50,6 +53,9 @@ void
 SqlImageModel::imageRowDoubleClicked(const QModelIndex& index)
 {
     QString path = getPath(index);
+    if (!QFile::exists(path)) {
+        return;
+    }
     QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
@@ -58,23 +64,47 @@ SqlImageModel::data(const QModelIndex& index, int role) const
 {
     if (role == Qt::DecorationRole && index.column() == 0) {
         QString path = getPath(index);
+        // If the image is already being loaded
+        if (loading[path]) {
+            return loadingIcon;
+        }
         if (!QFile::exists(path)) {
-            dbMan->deleteImage(getId(index));
-            return QVariant();
+            dbMan->removeImage(getId(index));
+            return deletedIcon;
         }
         QPixmap icon;
         if (QPixmapCache::find(path, &icon)) {
             return icon;
         }
-        icon.load(path);
-        icon = icon.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation);
-        QPixmapCache::insert(path, icon);
-        return icon;
+        QThread* thread = new QThread();
+        ImageLoader* loader = new ImageLoader();
+        loader->setPath(path);
+        loader->setSize(size);
+        loader->setIndex(index);
+        loader->moveToThread(thread);
+        // Start image loading on thread start
+        QObject::connect(
+          thread, &QThread::started, loader, &ImageLoader::loadImage);
+        // Update UI on image load
+        QObject::connect(
+          loader, &ImageLoader::imageLoaded, this, &SqlImageModel::cacheImage);
+        // Delete `loader` later
+        QObject::connect(
+          loader, &ImageLoader::finished, loader, &ImageLoader::deleteLater);
+        // Quit `thread` on image load and `loader` destroyed
+        QObject::connect(
+          loader, &ImageLoader::destroyed, thread, &QThread::quit);
+        // Delete `thread` on finish
+        QObject::connect(
+          thread, &QThread::finished, thread, &QThread::deleteLater);
+        thread->start();
+        loading[path] = true;
+        return loadingIcon;
     }
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
             case 0:
-                return "";
+                return QVariant();
             case 1:
                 return getName(index);
         }
@@ -82,14 +112,24 @@ SqlImageModel::data(const QModelIndex& index, int role) const
     return QSqlQueryModel::data(index, role);
 }
 
+void
+SqlImageModel::cacheImage(const QString& path,
+                          const QModelIndex& index,
+                          const QImage& image)
+{
+    QPixmapCache::insert(path, QPixmap::fromImage(image));
+    loading.remove(path);
+    emit dataChanged(index, index, { Qt::DecorationRole });
+}
+
 Qt::ItemFlags
 SqlImageModel::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags defaultFlags = QSqlQueryModel::flags(index);
-    if (index.isValid()) {
-        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+    if (!index.isValid()) {
+        return defaultFlags;
     }
-    return defaultFlags;
+    return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 }
 
 QMimeData*

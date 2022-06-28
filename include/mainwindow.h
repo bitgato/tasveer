@@ -29,12 +29,13 @@ class MainWindow : public QMainWindow
     bool eventFilter(QObject* watched, QEvent* event);
 
   private:
+    QString APP_NAME = QApplication::applicationName();
     // All the parameters are defined in the .pro file
     QString ABOUT = QString("<h2>%1 v%2.%3.%4</h2>"
                             "<p>%5</p>"
                             "<p>Released under <a href='%6'>%7</a></p>"
                             "<a href='%8'>Report a bug</a>")
-                      .arg(QApplication::applicationName(),
+                      .arg(APP_NAME,
                            QString::number(VERSION_MAJOR),
                            QString::number(VERSION_MINOR),
                            QString::number(VERSION_BUILD),
@@ -53,10 +54,12 @@ class MainWindow : public QMainWindow
     SqlImageModel* imageModel;
     SqlTagModel* tagModel;
     DatabaseManager dbMan;
+  private slots:
     void addTags();
     void removeTags();
     void removeNewTag();
     void removeExistingTag();
+    void removeImage();
     void filterImages();
     void filterTags(const QString& method);
     void showAddDirDialog();

@@ -29,8 +29,8 @@ class DatabaseManager
     bool addDirectory(QProgressDialog& progress, const QString& dirPath);
     void addImage(const QString& path);
     void addTags(const QStringList& tags);
+    void removeImage(const QString& imageId);
     void removeTags(const QString& imageId, const QStringList& tags);
-    void deleteImage(const QString& imageId);
     void mapTagsToImage(const QStringList& tagIds, const QString& imageId);
 };
 
