@@ -8,8 +8,32 @@
 
 ## Description
 Tasveer is a minimalistic Qt application made for browsing and tagging images
-easily. It supports the most common file formats: `jpg`, `png`, `gif` and
-`webp`.
+easily. It supports most common image formats.
+
+Native QT support:
+
+- `jpg`
+- `png`
+- `gif`
+- `svg`
+- `bmp`
+- `pbm`
+- `pgm`
+- `ppm`
+- `xbm`
+- `xpm`
+
+With plugin support:
+
+- `webp`
+- `tiff`
+- `cr2`
+- `nef`
+- `dng`
+
+For more details, see
+[Image formats](#image-formats) and
+[Adding image formats](#adding-image-formats) sections.
 
 ## Screenshot
 ![Main window](images/screenshots/main.png)
@@ -67,6 +91,12 @@ double-clicking on it.
 - Images can be dragged and dropped to any location that supports dropping
 images (file managers, browsers, etc).
 
+- Images can be removed from the database by right-clicking, selecting
+`Remove Image` and confirming. This won't delete files on disk.
+
+- **Note**: To deselect an item (tag or image), press `Ctrl` and click the left
+mouse button.
+
 ## Shortcuts
 - `Ctrl+D`: Open `Add directory` menu.
 - `Ctrl+I`: Open `Add image` menu.
@@ -75,12 +105,41 @@ images (file managers, browsers, etc).
 - `Ctrl+Z`: Set focus to image filter search box.
 - `Ctrl+Q`: Quit.
 
+## Image formats
+All image formats supported
+[natively](https://doc.qt.io/qt-6/qimagereader.html#supportedImageFormats)
+by `QImageReader` are supported. Additional image formats are supported through
+QT image formats plugins (`webp` and `tiff`).
+
+Some common RAW image formats (`cr2`, `nef` and `dng`) are read by the `tiff`
+plugin.
+
+## Adding image formats
+Additional image formats, if supported by other plugins installed on your
+system, can be added by adding the extensions to the `fileTypes` list in the
+`include/filetypes.h` header file.
+
+For instance, if support for `crw`, `arw` or `raf` files are needed, just
+install the [`QTRaw`](https://gitlab.com/mardy/qtraw) plugin and add
+the extensions to the `fileTypes` list.
+
+**Note**: If `QTRaw` is installed, `cr2`, `nef` and `dng` files will also be
+read through it. And `QTRaw` seems like it could be improved a lot. It seems to
+"auto-rotate" portrait images which look odd in the thumbnails. So, I'd suggest
+against using it. The QT `tiff` plugin seems to be a lot better, albeit a
+little slower.
+
 ## Building and Installing
+For all image format support, it's recommended to install the
+QT image formats plugins.
+Under debian and derivatives, they can be installed with:
+
+```bash
+sudo apt-get install qt5-image-formats-plugins
+```
+
+After installing the plugins, run the following commands to build and install:
 ```bash
 qmake && make
 sudo make install
 ```
-
-## Note
-To deselect an item (tag or image), press `Ctrl` and click the left mouse
-button.

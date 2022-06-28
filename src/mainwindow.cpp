@@ -1,3 +1,4 @@
+#include "filetypes.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -49,7 +50,7 @@ MainWindow::MainWindow(QWidget* parent)
     QObject::connect(
       ui->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
 
-    QPixmapCache::setCacheLimit(102400);
+    QPixmapCache::setCacheLimit(51200);
 
     ui->splitter = new QSplitter(this);
     ui->splitter->setGeometry(50, 50, 0, 0);
@@ -168,6 +169,25 @@ MainWindow::removeExistingTag()
 }
 
 void
+MainWindow::removeImage()
+{
+    QModelIndexList selected = ui->images->selectionModel()->selectedRows();
+    if (selected.empty()) {
+        return;
+    }
+    QString name = imageModel->getName(selected[0]);
+    auto reply =
+      QMessageBox::question(this,
+                            APP_NAME + " Confirm",
+                            "Are you sure you want to remove " + name + "?",
+                            QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        dbMan.removeImage(imageModel->getId(selected[0]));
+        filterImages();
+    }
+}
+
+void
 MainWindow::filterImages()
 {
     QString dirFilter = ui->dirSelectBox->currentText();
@@ -211,9 +231,9 @@ MainWindow::showAddDirDialog()
 void
 MainWindow::showAddImageDialog()
 {
-    QString fileTypes = "Image files (*.jpg *.jpeg *.png *.gif *.webp)";
-    QString file =
-      QFileDialog::getOpenFileName(this, "Open image", "/home", fileTypes);
+    QFileDialog dialog(this);
+    dialog.setNameFilters(FileTypes::fileTypes);
+    QString file = dialog.getOpenFileName();
     dbMan.addImage(file);
     filterImages();
 }
@@ -238,12 +258,12 @@ MainWindow::showShowTagsDialog()
     tagsChangedCount = 0;
     tagsChanged.clear();
     QModelIndexList selected = ui->images->selectionModel()->selectedRows();
-    showTagsDialog = new QDialog(this);
-    showTagsDialog->deleteLater();
-    showTagsUi.setupUi(showTagsDialog);
     if (selected.empty()) {
         return;
     }
+    showTagsDialog = new QDialog(this);
+    showTagsDialog->deleteLater();
+    showTagsUi.setupUi(showTagsDialog);
     tagRemoveImageId = imageModel->getId(selected[0]);
     QSqlQuery tags = dbMan.getTagsByImage(tagRemoveImageId);
     while (tags.next()) {
@@ -271,13 +291,17 @@ MainWindow::showImageContextMenu(const QPoint& pos)
     QObject::connect(
       &showTags, &QAction::triggered, this, &MainWindow::showShowTagsDialog);
     contextMenu.addAction(&showTags);
+    QAction removeImage("Remove Image", ui->images);
+    QObject::connect(
+      &removeImage, &QAction::triggered, this, &MainWindow::removeImage);
+    contextMenu.addAction(&removeImage);
     contextMenu.exec(ui->images->viewport()->mapToGlobal(pos));
 }
 
 void
 MainWindow::showAboutDialog()
 {
-    QMessageBox::about(this, "About Tasveer", ABOUT);
+    QMessageBox::about(this, "About " + APP_NAME, ABOUT);
 }
 
 void
