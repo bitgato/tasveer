@@ -6,10 +6,11 @@
 #include <QPixmap>
 #include <QPixmapCache>
 #include <QSqlRecord>
+#include <QThread>
 #include <QUrl>
 
 SqlImageModel::SqlImageModel(DatabaseManager* dbMan,
-                             QSize& size,
+                             const QSize &size,
                              QObject* parent)
   : QSqlQueryModel(parent)
 {
@@ -77,10 +78,7 @@ SqlImageModel::data(const QModelIndex& index, int role) const
             return icon;
         }
         QThread* thread = new QThread();
-        ImageLoader* loader = new ImageLoader();
-        loader->setPath(path);
-        loader->setSize(size);
-        loader->setIndex(index);
+        ImageLoader* loader = new ImageLoader(path, size, index);
         loader->moveToThread(thread);
         // Start image loading on thread start
         QObject::connect(

@@ -16,10 +16,10 @@ class ImageLoader : public QObject
     QModelIndex index;
 
   public:
-    ImageLoader(QObject* parent = nullptr);
-    void setSize(const QSize& size);
-    void setPath(const QString& path);
-    void setIndex(const QModelIndex& index);
+    ImageLoader(const QString& path,
+                const QSize& size,
+                const QModelIndex& index,
+                QObject* parent = nullptr);
   signals:
     void finished();
     void imageLoaded(const QString& path,

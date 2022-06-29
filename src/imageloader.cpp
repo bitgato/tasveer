@@ -1,24 +1,10 @@
 #include "imageloader.h"
 
-ImageLoader::ImageLoader(QObject* parent)
+ImageLoader::ImageLoader(const QString& path, const QSize& size, const QModelIndex& index, QObject* parent)
   : QObject(parent)
-{}
-
-void
-ImageLoader::setSize(const QSize& size)
-{
-    this->size = size;
-}
-
-void
-ImageLoader::setPath(const QString& path)
 {
     this->path = path;
-}
-
-void
-ImageLoader::setIndex(const QModelIndex& index)
-{
+    this->size = size;
     this->index = index;
 }
 

@@ -3,14 +3,12 @@
 
 #include "databasemanager.h"
 
-#include <QImageReader>
 #include <QMap>
 #include <QMimeData>
 #include <QObject>
 #include <QPixmap>
 #include <QSize>
 #include <QSqlQueryModel>
-#include <QThread>
 
 class SqlImageModel : public QSqlQueryModel
 {
@@ -18,7 +16,6 @@ class SqlImageModel : public QSqlQueryModel
 
   private:
     QSize size;
-    QThread thread;
     QPixmap loadingIcon;
     QPixmap deletedIcon;
     DatabaseManager* dbMan;
@@ -28,7 +25,7 @@ class SqlImageModel : public QSqlQueryModel
 
   public:
     SqlImageModel(DatabaseManager* dbMan,
-                  QSize& size,
+                  const QSize& size,
                   QObject* parent = nullptr);
     QString getId(const QModelIndex& index) const;
     QString getName(const QModelIndex& index) const;
