@@ -1,6 +1,9 @@
 #include "imageloader.h"
 
-ImageLoader::ImageLoader(const QString& path, const QSize& size, const QModelIndex& index, QObject* parent)
+ImageLoader::ImageLoader(const QString& path,
+                         const QSize& size,
+                         const QModelIndex& index,
+                         QObject* parent)
   : QObject(parent)
 {
     this->path = path;

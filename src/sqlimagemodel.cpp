@@ -10,7 +10,7 @@
 #include <QUrl>
 
 SqlImageModel::SqlImageModel(DatabaseManager* dbMan,
-                             const QSize &size,
+                             const QSize& size,
                              QObject* parent)
   : QSqlQueryModel(parent)
 {
