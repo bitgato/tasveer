@@ -70,7 +70,6 @@ class MainWindow : public QMainWindow
     void showShowTagsDialog();
     void setTagBoxFocus();
     void setImageBoxFocus();
-    void toggleUntaggedCheckbox();
     void disableUntaggedCheckbox();
 };
 #endif // MAINWINDOW_H

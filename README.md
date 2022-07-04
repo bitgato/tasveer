@@ -101,7 +101,7 @@ images (file managers, browsers, etc).
 `Remove Image` and confirming. This won't delete files on disk.
 
 - **Note**: To deselect an item (tag or image), press `Ctrl` and click the left
-mouse button.
+mouse button. To deselect all tags, press `Ctrl+X`.
 
 ## Shortcuts
 - `Ctrl+D`: Open `Add directory` menu.
@@ -110,6 +110,7 @@ mouse button.
 - `Ctrl+S`: Set focus to tag filter search box.
 - `Ctrl+Z`: Set focus to image filter search box.
 - `Ctrl+U`: Toggle `Show untagged images only` checkbox, if enabled.
+- `Ctrl+X`: Deselect all tags.
 - `Ctrl+Q`: Quit.
 
 ## Image formats

@@ -142,8 +142,15 @@ MainWindow::MainWindow(QWidget* parent)
       new QShortcut(QKeySequence(tr("Ctrl+U", "Toggle|Untagged check")), this);
     QObject::connect(untaggedToggleShortcut,
                      &QShortcut::activated,
-                     this,
-                     &MainWindow::toggleUntaggedCheckbox);
+                     ui->showUntaggedCheckbox,
+                     &QCheckBox::toggle);
+
+    auto clearSelectedShortcut =
+      new QShortcut(QKeySequence(tr("Ctrl+X", "Clear|Selected tags")), this);
+    QObject::connect(clearSelectedShortcut,
+                     &QShortcut::activated,
+                     ui->tagsList,
+                     &QListView::clearSelection);
 }
 
 MainWindow::~MainWindow()
@@ -332,12 +339,6 @@ void
 MainWindow::setImageBoxFocus()
 {
     ui->imageSearchBox->setFocus();
-}
-
-void
-MainWindow::toggleUntaggedCheckbox()
-{
-    ui->showUntaggedCheckbox->toggle();
 }
 
 void
