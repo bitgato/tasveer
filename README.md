@@ -109,7 +109,7 @@ mouse button.
 - `Ctrl+T`: Open `Add tags` menu.
 - `Ctrl+S`: Set focus to tag filter search box.
 - `Ctrl+Z`: Set focus to image filter search box.
-- `Ctrl+U`: Toggle `Show only untagged images` checkbox, if enabled.
+- `Ctrl+U`: Toggle `Show untagged images only` checkbox, if enabled.
 - `Ctrl+Q`: Quit.
 
 ## Image formats

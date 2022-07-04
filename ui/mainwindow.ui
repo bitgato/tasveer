@@ -131,7 +131,7 @@
         <item>
          <widget class="QCheckBox" name="showUntaggedCheckbox">
           <property name="text">
-           <string>Show only untagged images</string>
+           <string>Show untagged images only</string>
           </property>
          </widget>
         </item>
