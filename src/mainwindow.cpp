@@ -33,6 +33,10 @@ MainWindow::MainWindow(QWidget* parent)
                      &QPushButton::released,
                      this,
                      &MainWindow::filterImages);
+    QObject::connect(ui->showUntaggedCheckbox,
+                     &QCheckBox::toggled,
+                     this,
+                     &MainWindow::filterImages);
     QObject::connect(ui->actionAddDirectory,
                      &QAction::triggered,
                      this,
@@ -107,6 +111,10 @@ MainWindow::MainWindow(QWidget* parent)
     ui->tagsList->setDragEnabled(true);
     ui->tagsList->setModel(tagModel);
     query.clear();
+    QObject::connect(ui->tagsList->selectionModel(),
+                     &QItemSelectionModel::selectionChanged,
+                     this,
+                     &MainWindow::disableUntaggedCheckbox);
 
     // Directories
     query = dbMan.getAllDirs();
@@ -129,6 +137,13 @@ MainWindow::MainWindow(QWidget* parent)
                      &QShortcut::activated,
                      this,
                      &MainWindow::setImageBoxFocus);
+
+    auto untaggedToggleShortcut =
+      new QShortcut(QKeySequence(tr("Ctrl+U", "Toggle|Untagged check")), this);
+    QObject::connect(untaggedToggleShortcut,
+                     &QShortcut::activated,
+                     this,
+                     &MainWindow::toggleUntaggedCheckbox);
 }
 
 MainWindow::~MainWindow()
@@ -202,7 +217,9 @@ MainWindow::filterImages()
         QString tagId = tagModel->getId(index);
         tagIds += tagId;
     }
-    QSqlQuery query = dbMan.filterImages(tagIds, method, dirFilter, nameFilter);
+    bool untagged = ui->showUntaggedCheckbox->isChecked();
+    QSqlQuery query =
+      dbMan.filterImages(tagIds, method, dirFilter, nameFilter, untagged);
     imageModel->setQuery(query);
 }
 
@@ -222,7 +239,8 @@ MainWindow::showAddDirDialog()
       QFileDialog::getExistingDirectory(this, "Open Directory", "/home", flags);
     QProgressDialog progress("Adding directory", "Cancel", 0, 100, this);
     progress.setWindowModality(Qt::WindowModal);
-    if (dbMan.addDirectory(progress, dir)) {
+    if (dbMan.addDirectory(progress, dir) &&
+        (ui->dirSelectBox->findText(dir) >= 0)) {
         ui->dirSelectBox->addItem(dir);
     }
     filterImages();
@@ -316,6 +334,20 @@ MainWindow::setImageBoxFocus()
     ui->imageSearchBox->setFocus();
 }
 
+void
+MainWindow::toggleUntaggedCheckbox()
+{
+    ui->showUntaggedCheckbox->toggle();
+}
+
+void
+MainWindow::disableUntaggedCheckbox()
+{
+    auto selected = ui->tagsList->selectionModel()->selectedIndexes();
+    // Only allow checking if no tags are selected
+    ui->showUntaggedCheckbox->setCheckable(selected.empty());
+}
+
 bool
 MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
@@ -327,17 +359,16 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
             return result;
         }
         filterTags(ui->methodBox->currentText());
-    }
-    if (watched == ui->imageSearchBox && event->type() == QEvent::KeyRelease) {
+    } else if (watched == ui->imageSearchBox &&
+               event->type() == QEvent::KeyRelease) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Escape) {
             ui->imageSearchBox->clearFocus();
             return result;
         }
         filterImages();
-    }
-    if (enterTagsDialog && watched == enterTagsUi.enterTagsBox &&
-        event->type() == QEvent::KeyRelease) {
+    } else if (enterTagsDialog && watched == enterTagsUi.enterTagsBox &&
+               event->type() == QEvent::KeyRelease) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() != Qt::Key_Semicolon) {
             return result;

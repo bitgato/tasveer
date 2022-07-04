@@ -129,6 +129,13 @@
          <widget class="QLineEdit" name="imageSearchBox"/>
         </item>
         <item>
+         <widget class="QCheckBox" name="showUntaggedCheckbox">
+          <property name="text">
+           <string>Show only untagged images</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableView" name="images"/>
         </item>
        </layout>

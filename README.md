@@ -78,6 +78,12 @@ available: `OR` and `AND`.
 - Images can be filtered by the directory they're in by selecting directories
 in the dropdown menu above the images section.
 
+- `Show untagged images only` checkbox can be checked to show only images
+without any linked tags. If any tag is selected in the tag list, this checkbox
+is disabled. As a result, this can only be used without any tags selected
+(because if you have a tag already selected, it means you are about to/already
+have images filtered by tags, making this useless).
+
 - Tags linked to an image can be viewed by right clicking an image and
 selecting `Show Tags`. A tag can be removed from an image by clicking on its
 button and then confirming. The tags will not get removed unless you press
@@ -103,6 +109,7 @@ mouse button.
 - `Ctrl+T`: Open `Add tags` menu.
 - `Ctrl+S`: Set focus to tag filter search box.
 - `Ctrl+Z`: Set focus to image filter search box.
+- `Ctrl+U`: Toggle `Show only untagged images` checkbox, if enabled.
 - `Ctrl+Q`: Quit.
 
 ## Image formats

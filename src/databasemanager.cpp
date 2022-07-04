@@ -162,7 +162,8 @@ QSqlQuery
 DatabaseManager::filterImages(const QStringList& tagIds,
                               const QString& method,
                               QString& dir,
-                              QString& name)
+                              QString& name,
+                              bool untagged)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION);
     QSqlQuery query(db);
@@ -178,21 +179,27 @@ DatabaseManager::filterImages(const QStringList& tagIds,
     }
 
     int count = tagIds.size();
-    if (count == 0) {
+    if (!count) {
         queryString = "SELECT * FROM images";
-        if (nameGiven || dirGiven) {
+        if (nameGiven || dirGiven || untagged) {
             queryString += " WHERE ";
         }
+        if (untagged) {
+            queryString += " image_id NOT IN "
+                           "(SELECT image_id FROM tag_image_map)";
+        }
         if (dirGiven) {
-            queryString += "dir LIKE '%' || (?) || '%'";
+            if (untagged) {
+                queryString += " AND ";
+            }
+            queryString += "dir = (?)";
         }
         if (nameGiven) {
-            if (dirGiven)
+            if (dirGiven) {
                 queryString += " AND ";
-            queryString += "name LIKE '%' || (?) || '%'";
-        }
-        if (nameGiven || dirGiven) {
-            queryString += " ESCAPE '@'";
+            }
+            queryString += "name LIKE '%' || (?) || '%' "
+                           "ESCAPE '@'";
         }
         queryString += " ORDER BY name";
         query.prepare(queryString);
@@ -215,13 +222,12 @@ DatabaseManager::filterImages(const QStringList& tagIds,
         }
         queryString += ") ";
         if (dirGiven) {
-            queryString += "AND i.dir LIKE '%' || (?) || '%' ";
+            queryString += "AND i.dir = (?) ";
         }
         if (nameGiven) {
-            queryString += "AND i.name LIKE '%' || (?) || '%' ";
-        }
-        if (nameGiven || dirGiven) {
-            queryString += "ESCAPE '@' ";
+            queryString += "AND i.name "
+                           "LIKE '%' || (?) || '%' "
+                           "ESCAPE '@' ";
         }
         queryString += "ORDER BY i.name";
         query.prepare(queryString);
@@ -249,13 +255,12 @@ DatabaseManager::filterImages(const QStringList& tagIds,
                        "FROM cte GROUP BY tim_ii "
                        "HAVING count() = (?) ";
         if (dirGiven) {
-            queryString += "AND i_d LIKE '%' || (?) || '%' ";
+            queryString += "AND i_d = (?) ";
         }
         if (nameGiven) {
-            queryString += "AND i_n LIKE '%' || (?) || '%' ";
-        }
-        if (nameGiven || dirGiven) {
-            queryString += "ESCAPE '@' ";
+            queryString += "AND i_n "
+                           "LIKE '%' || (?) || '%' "
+                           "ESCAPE '@' ";
         }
         queryString += "ORDER BY i_n";
         query.prepare(queryString);
@@ -272,6 +277,7 @@ DatabaseManager::filterImages(const QStringList& tagIds,
         }
     }
     if (!query.exec()) {
+        qDebug() << query.executedQuery();
         qDebug() << "filterImagesError: " << query.lastError().text();
     }
     return query;

@@ -24,7 +24,8 @@ class DatabaseManager
     QSqlQuery filterImages(const QStringList& tagIds,
                            const QString& method,
                            QString& dir,
-                           QString& name);
+                           QString& name,
+                           bool untagged);
     QSqlQuery filterTags(const QString& method, QString& text);
     bool addDirectory(QProgressDialog& progress, const QString& dirPath);
     void addImage(const QString& path);
