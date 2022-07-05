@@ -247,7 +247,7 @@ MainWindow::showAddDirDialog()
     QProgressDialog progress("Adding directory", "Cancel", 0, 100, this);
     progress.setWindowModality(Qt::WindowModal);
     if (dbMan.addDirectory(progress, dir) &&
-        (ui->dirSelectBox->findText(dir) >= 0)) {
+        (ui->dirSelectBox->findText(dir) < 0)) {
         ui->dirSelectBox->addItem(dir);
     }
     filterImages();
